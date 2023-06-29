@@ -1,0 +1,3 @@
+- name: Install node_exporter for RHEL
+  import_tasks: redhat.yml
+  when: ansible_facts['os_family']|lower == 'redhat'

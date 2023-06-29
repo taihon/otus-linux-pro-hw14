@@ -1,0 +1,7 @@
+---
+- hosts: all
+  become: yes
+  become_method: sudo
+  roles:
+    - role: monitored_node
+    - role: monitoring_server

@@ -1,0 +1,37 @@
+---
+- name: Copy grafana.rpm file
+  copy:
+    src: "files/distrib/grafana-9.3.2-1.x86_64.rpm"
+    dest: "/tmp/grafana.rpm"
+- name: Install grafana from rpm
+  ansible.builtin.yum:
+    name: "/tmp/grafana.rpm"
+    state: present
+- name: Override grafana-server systemd service definition
+  copy:
+    src: "grafana-server.service"
+    dest: "/usr/lib/systemd/system/grafana-server.service"
+- name: Reload systemd
+  ansible.builtin.systemd:
+    daemon_reload: true
+- name: Copy pre-configured grafana.db
+  ansible.builtin.copy:
+    src: "files/backup/grafana.db"
+    dest: "/var/lib/grafana/grafana.db"
+- name: Set permissions on grafana.db
+  ansible.builtin.file:
+    path: "/var/lib/grafana/grafana.db"
+    owner: grafana
+    group: grafana
+    mode: "0600"
+- name: Ensure grafana enabled and started
+  ansible.builtin.systemd:
+    name: grafana-server.service
+    enabled: true
+    state: started
+- name: Open port 3000 in firewalld
+  ansible.posix.firewalld:
+    port: 3000/tcp
+    permanent: yes
+    immediate: yes
+    state: enabled
